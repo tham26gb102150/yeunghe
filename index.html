@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghi nhận chăm sóc khách – Tuyển sinh FSB</title>
+<style>
+  :root {
+    --nen: #f4f6f9; --the: #ffffff; --chu: #1c2430; --chu-phu: #5b6676; --vien: #d5dbe4;
+    --chinh: #1558d6; --chinh-chu: #ffffff; --ok: #12805c; --ok-nen: #e3f5ee;
+    --loi: #c62828; --loi-nen: #fdecec; --canh-bao: #8a5a00; --canh-bao-nen: #fff4d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --nen: #11161d; --the: #1a212b; --chu: #e8edf3; --chu-phu: #98a3b3; --vien: #34404f;
+      --chinh: #5b92ff; --chinh-chu: #0b1220; --ok: #4cc9a0; --ok-nen: #12332a;
+      --loi: #ff8a80; --loi-nen: #3a1a1a; --canh-bao: #ffd37a; --canh-bao-nen: #3a2d0e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--nen); color: var(--chu); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  [hidden] { display: none !important; }
+  .khung { max-width: 1180px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  .phu { color: var(--chu-phu); font-size: .9rem; }
+  input, select, button { font: inherit; color: inherit; }
+  input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--vien); border-radius: 8px; background: var(--the); min-height: 44px; }
+  input:disabled, select:disabled { opacity: .55; }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--chinh); outline-offset: 1px; }
+  label { display: block; font-size: .8rem; color: var(--chu-phu); margin-bottom: 4px; }
+  button { cursor: pointer; border: 1px solid var(--vien); background: var(--the); border-radius: 8px; padding: 10px 14px; min-height: 44px; }
+  button.chinh { background: var(--chinh); color: var(--chinh-chu); border-color: var(--chinh); font-weight: 600; }
+  button:disabled { opacity: .6; cursor: default; }
+  button.link { border: 0; background: none; color: var(--chinh); padding: 8px 0; min-height: 36px; text-align: left; }
+
+  /* đăng nhập */
+  #man-dang-nhap { max-width: 400px; margin: 8vh auto 0; }
+  .the { background: var(--the); border: 1px solid var(--vien); border-radius: 12px; padding: 16px; }
+  .the form > * + * { margin-top: 12px; }
+
+  /* đầu trang */
+  .dau { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .dem { background: var(--chinh); color: var(--chinh-chu); border-radius: 999px; padding: 6px 14px; font-weight: 600; white-space: nowrap; }
+  .dem.dem-hen { background: var(--ok); }
+  .tren { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  /* bảng ghi nhiều khách */
+  #danh-sach { display: grid; gap: 12px; }
+  .dong { background: var(--the); border: 1px solid var(--vien); border-radius: 12px; padding: 12px; display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+  .dong .rong, .dong .dong-dau, .dong .khach, .dong .ghichu, .dong .loi { grid-column: 1 / -1; }
+  .dong.da-luu { border-color: var(--ok); background: var(--ok-nen); }
+  .dong.co-loi { border-color: var(--loi); }
+  .dong-dau { display: flex; align-items: center; gap: 8px; }
+  .so { font-weight: 700; color: var(--chu-phu); }
+  .trang-thai { flex: 1; color: var(--ok); font-weight: 600; }
+  .xoa { min-height: 36px; padding: 4px 10px; }
+  .dieu-chinh { min-height: 36px; padding: 4px 12px; }
+  .trang-thai.dc { color: var(--canh-bao); }
+  .tim { position: relative; }
+  .goi-y { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--vien); border-radius: 8px; background: var(--the); max-height: 260px; overflow: auto; position: absolute; left: 0; right: 0; z-index: 5; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .goi-y li { padding: 10px 12px; border-bottom: 1px solid var(--vien); cursor: pointer; }
+  .goi-y li:last-child { border-bottom: 0; }
+  .goi-y li:hover, .goi-y li:focus { background: var(--nen); }
+  .goi-y .nho { color: var(--chu-phu); font-size: .85rem; }
+  .nhan { display: inline-block; font-size: .72rem; padding: 1px 8px; border-radius: 999px; margin-left: 6px; }
+  .nhan.cua-toi { background: var(--ok-nen); color: var(--ok); }
+  .nhan.nguoi-khac { background: var(--canh-bao-nen); color: var(--canh-bao); }
+  .da-chon { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border: 1px solid var(--vien); border-radius: 8px; padding: 8px 12px; background: var(--nen); }
+  .da-chon.khac { background: var(--canh-bao-nen); color: var(--canh-bao); border-color: var(--canh-bao); }
+  .khach-moi { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; padding: 10px; border: 1px dashed var(--vien); border-radius: 8px; }
+  .khach-moi .rong { grid-column: 1 / -1; }
+  .loi { background: var(--loi-nen); color: var(--loi); border-radius: 8px; padding: 8px 12px; font-size: .92rem; }
+  .canh-bao { background: var(--canh-bao-nen); color: var(--canh-bao); border-radius: 8px; padding: 8px 12px; font-size: .9rem; }
+  .thanh-duoi { position: sticky; bottom: 0; background: var(--nen); padding: 12px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  #ket-qua-luu { flex: 1; min-width: 200px; font-weight: 600; }
+  .ok { color: var(--ok); } .xau { color: var(--loi); }
+  .thong-bao { margin-top: 12px; }
+
+  /* màn hình Chuyển khách */
+  .tieu-de { font-size: 1.1rem; margin: 20px 0 8px; }
+  .form-chuyen { display: grid; gap: 12px; max-width: 640px; }
+  .xem-truoc { background: var(--nen); border: 1px dashed var(--vien); border-radius: 8px; padding: 10px 12px; }
+  .xem-truoc ul { margin: 6px 0 0; padding-left: 20px; }
+  .ok-hop { background: var(--ok-nen); color: var(--ok); border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+  .lich-su-the { background: var(--the); border: 1px solid var(--vien); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+  .lich-su-the .dong-1 { font-weight: 600; }
+  .lich-su-the .phu { margin-top: 2px; }
+
+  @media (min-width: 900px) {
+    .dong { grid-template-columns: 2.8fr 1.1fr 1.1fr .9fr 1.5fr; align-items: start; }
+    .dong .khach { grid-column: 1; }
+    .dong .ghichu { grid-column: auto; }
+    .dong .dong-dau, .dong .loi { grid-column: 1 / -1; }
+    .khach-moi { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="khung">
+
+  <!-- Màn hình đăng nhập -->
+  <section id="man-dang-nhap" hidden>
+    <h1>Tuyển sinh FSB – Ghi nhận chăm sóc khách</h1>
+    <p class="phu">Đăng nhập bằng email và mật khẩu được cấp.</p>
+    <div class="the">
+      <form id="form-dang-nhap" autocomplete="on">
+        <div><label for="email">Email</label><input id="email" type="email" required autocomplete="username" inputmode="email"></div>
+        <div><label for="mat-khau">Mật khẩu</label><input id="mat-khau" type="password" required autocomplete="current-password"></div>
+        <div class="loi" id="loi-dang-nhap" role="alert" hidden></div>
+        <button class="chinh" type="submit" id="nut-dang-nhap" style="width:100%">Đăng nhập</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Màn hình chính -->
+  <section id="man-chinh" hidden>
+    <div class="dau">
+      <div>
+        <h1 id="chao"></h1>
+        <div class="phu" id="vai-tro"></div>
+      </div>
+      <div class="tren">
+        <span class="dem" id="dem-hom-nay" hidden></span>
+        <span class="dem dem-hen" id="dem-den-hen" hidden></span>
+        <button type="button" id="nut-dang-xuat">Đăng xuất</button>
+      </div>
+    </div>
+
+    <div class="canh-bao" id="chi-xem" hidden>
+      Vai trò này chỉ được xem dữ liệu, không ghi lần tiếp xúc. Chỉ tư vấn viên mới có bảng ghi tiếp xúc.
+    </div>
+
+    <div id="khu-ghi" hidden>
+      <p class="phu">Mỗi dòng là một khách. Gõ số điện thoại hoặc tên để tìm khách đã có; nếu chưa có thì thêm khách mới ngay trong dòng. Lần tiếp xúc đã lưu không sửa, không xóa được: nhập nhầm thì ghi thêm một lần mới kèm ghi chú điều chỉnh.</p>
+      <div id="danh-sach"></div>
+      <div class="thanh-duoi">
+        <button type="button" id="nut-them-dong">+ Thêm dòng</button>
+        <button type="button" class="chinh" id="nut-luu">Lưu tất cả</button>
+        <div id="ket-qua-luu" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <!-- Màn hình Chuyển khách: chỉ quản trị viên thấy -->
+    <div id="khu-chuyen" hidden>
+      <h2 class="tieu-de">Chuyển khách</h2>
+      <p class="phu">Chuyển toàn bộ khách của một tư vấn viên (ví dụ khi nghỉ việc) cho một hoặc hai người nhận. Nếu chọn hai người nhận, khách được chia đều. Mỗi lần chuyển đều được ghi lại và không sửa, không xóa được.</p>
+      <div class="the form-chuyen">
+        <div><label for="c-tu">Người chuyển đi (nghỉ việc)</label><select id="c-tu"></select></div>
+        <div><label for="c-nhan1">Người nhận thứ nhất</label><select id="c-nhan1"></select></div>
+        <div><label for="c-nhan2">Người nhận thứ hai (không bắt buộc, chia đều)</label><select id="c-nhan2"></select></div>
+        <div><label for="c-lydo">Lý do</label><input id="c-lydo" type="text" maxlength="300" placeholder="Ví dụ: Nghỉ việc từ 19/11/2026" autocomplete="off"></div>
+        <div id="c-xem-truoc" class="xem-truoc" aria-live="polite"></div>
+        <div class="loi" id="c-loi" role="alert" hidden></div>
+        <div class="ok-hop" id="c-ok" role="status" hidden></div>
+        <button class="chinh" id="c-xacnhan" type="button" disabled>Xác nhận chuyển khách</button>
+      </div>
+      <h2 class="tieu-de">Lịch sử các lần chuyển</h2>
+      <div id="c-lich-su"></div>
+    </div>
+  </section>
+
+  <div class="loi thong-bao" id="loi-chung" role="alert" hidden></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // Chỉ dùng địa chỉ dự án và khóa CÔNG KHAI (publishable). Không có khóa bí mật nào trong trang này.
+  const SUPABASE_URL = 'https://jyixxgaczwwceoywiuai.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_RVKdSM-nBbbNr3419me1Bg_m9PUSBfS';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const VAI_TRO = { tu_van_vien: 'Tư vấn viên', truong_nhom: 'Trưởng nhóm', quan_tri: 'Quản trị viên' };
+  const SO_DONG_MAC_DINH = 3;
+  const $ = (s, r) => (r || document).querySelector(s);
+
+  let me = null;                 // {id, ho_ten, vai_tro}
+  let dm = { chuong_trinh: [], nguon: [], hinh_thuc: [], ket_qua: [] };
+  let dongs = [];                // các dòng đang có trên trang
+  let dangLuu = false;
+
+  /* ---------- tiện ích ---------- */
+  function hien(el, bat) { el.hidden = !bat; }
+  function chuanHoaSdt(s) {
+    let d = String(s || '').replace(/\D/g, '');
+    if (d.startsWith('84')) d = '0' + d.slice(2);
+    if (d.length === 9) d = '0' + d;
+    return d;
+  }
+  function sdtHopLe(d) { return /^0\d{9,10}$/.test(d); }
+  function gioPhut(iso) {
+    return new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  }
+  function dichLoi(err) {
+    const m = String((err && (err.message || err.details)) || err || '');
+    if (/khach_hang_so_dien_thoai_key|duplicate key/i.test(m)) return 'Số điện thoại này đã có trong hệ thống (khách có thể do người khác phụ trách). Hãy gõ số điện thoại vào ô tìm khách để kiểm tra.';
+    if (/So dien thoai khong hop le/i.test(m)) return 'Số điện thoại không hợp lệ: cần 10 hoặc 11 chữ số, bắt đầu bằng số 0.';
+    if (/dat_coc_hop_le/i.test(m)) return 'Tiền đặt cọc chỉ nhập khi kết quả là "Đặt cọc" và phải lớn hơn 0.';
+    if (/Lan dieu chinh phai thuoc cung mot khach/i.test(m)) return 'Dòng điều chỉnh phải thuộc cùng khách với lần ghi cần điều chỉnh.';
+    if (/Ngay hen khong duoc o qua khu/i.test(m)) return 'Ngày hẹn không được ở quá khứ.';
+    if (/hen_can_ngay_hen/i.test(m)) return 'Kết quả là Hẹn tư vấn nên phải nhập ngày hẹn.';
+    if (/ngay_hen_dung_ket_qua/i.test(m)) return 'Chỉ nhập ngày hẹn khi kết quả là Hẹn tư vấn.';
+    if (/row-level security|permission denied/i.test(m)) return 'Bạn không có quyền ghi cho khách này (khách của người khác, hoặc tài khoản không đủ quyền).';
+    if (/JWT|expired|not authenticated/i.test(m)) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+    if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+    return 'Không lưu được: ' + m;
+  }
+  function taoOption(gt, nhan) { const o = document.createElement('option'); o.value = gt; o.textContent = nhan; return o; }
+  function napSelect(sel, ds, tieuDe) {
+    sel.textContent = '';
+    sel.appendChild(taoOption('', tieuDe));
+    ds.forEach(v => sel.appendChild(taoOption(v, v)));
+  }
+
+  /* ---------- đăng nhập / đăng xuất ---------- */
+  function hienDangNhap(thongBao) {
+    me = null;
+    hien($('#man-chinh'), false);
+    hien($('#man-dang-nhap'), true);
+    const l = $('#loi-dang-nhap');
+    l.textContent = thongBao || '';
+    hien(l, !!thongBao);
+  }
+
+  async function vaoTrangChinh() {
+    const { data: u } = await sb.auth.getUser();
+    if (!u || !u.user) return hienDangNhap();
+    const { data, error } = await sb.from('nguoi_dung').select('id, ho_ten, vai_tro, trang_thai').eq('id', u.user.id).maybeSingle();
+    if (error || !data || data.trang_thai !== 'hoat_dong') {
+      await sb.auth.signOut();
+      return hienDangNhap('Tài khoản này đã bị khóa hoặc chưa được cấp quyền. Liên hệ quản trị viên.');
+    }
+    me = data;
+    hien($('#man-dang-nhap'), false);
+    hien($('#man-chinh'), true);
+    $('#chao').textContent = 'Xin chào, ' + me.ho_ten;
+    $('#vai-tro').textContent = 'Vai trò: ' + (VAI_TRO[me.vai_tro] || me.vai_tro);
+
+    const ghiDuoc = me.vai_tro === 'tu_van_vien';
+    const laQT = me.vai_tro === 'quan_tri';
+    hien($('#khu-ghi'), ghiDuoc);
+    hien($('#khu-chuyen'), laQT);
+    hien($('#chi-xem'), !ghiDuoc && !laQT);
+    hien($('#dem-hom-nay'), ghiDuoc);
+    hien($('#dem-den-hen'), ghiDuoc);
+    if (laQT) { await khoiDongChuyen(); return; }
+    if (!ghiDuoc) return;
+
+    await napDanhMuc();
+    $('#danh-sach').textContent = '';
+    dongs = [];
+    for (let i = 0; i < SO_DONG_MAC_DINH; i++) themDong();
+    capNhatDem();
+  }
+
+  $('#form-dang-nhap').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nut = $('#nut-dang-nhap');
+    nut.disabled = true; nut.textContent = 'Đang đăng nhập…';
+    const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#mat-khau').value });
+    nut.disabled = false; nut.textContent = 'Đăng nhập';
+    if (error) {
+      const sai = /invalid login credentials/i.test(error.message);
+      if (/banned/i.test(error.message)) return hienDangNhap('Tài khoản này đã bị dừng quyền đăng nhập. Liên hệ quản trị viên.');
+      return hienDangNhap(sai ? 'Sai email hoặc mật khẩu.' : 'Không đăng nhập được: ' + error.message);
+    }
+    $('#mat-khau').value = '';
+    await vaoTrangChinh();
+  });
+
+  $('#nut-dang-xuat').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    hienDangNhap();
+  });
+
+  /* ---------- danh mục & bộ đếm ---------- */
+  async function napDanhMuc() {
+    const { data, error } = await sb.from('danh_muc').select('loai_danh_muc, gia_tri, thu_tu').order('thu_tu');
+    if (error) { baoLoiChung('Không tải được danh mục: ' + error.message); return; }
+    dm = { chuong_trinh: [], nguon: [], hinh_thuc: [], ket_qua: [] };
+    (data || []).forEach(r => { if (dm[r.loai_danh_muc]) dm[r.loai_danh_muc].push(r.gia_tri); });
+  }
+  function baoLoiChung(t) { const el = $('#loi-chung'); el.textContent = t || ''; hien(el, !!t); }
+
+  async function capNhatDem() {
+    if (!me || me.vai_tro !== 'tu_van_vien') return;
+    const dau = new Date(); dau.setHours(0, 0, 0, 0);
+    const { count, error } = await sb.from('lan_tiep_xuc').select('id', { count: 'exact', head: true })
+      .eq('nguoi_ghi_id', me.id).gte('thoi_diem_ghi', dau.toISOString());
+    $('#dem-hom-nay').textContent = error ? 'Hôm nay: không đếm được' : 'Hôm nay đã ghi: ' + count + ' lần tiếp xúc';
+    capNhatDenHen();
+  }
+
+  // Số khách đến hẹn hôm nay: chỉ tính khách của chính tư vấn viên đang đăng nhập (máy chủ tự lọc).
+  async function capNhatDenHen() {
+    const el = $('#dem-den-hen');
+    const { data, error } = await sb.rpc('so_khach_den_hen');
+    el.textContent = error ? 'Không đếm được khách đến hẹn' : 'Hôm nay anh/chị có ' + data + ' khách đến hẹn';
+  }
+
+  // Ngày hôm nay theo giờ Việt Nam, dạng YYYY-MM-DD (dùng để chặn ngày hẹn ở quá khứ ngay trên trang)
+  function homNay() {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+  }
+
+  /* ---------- một dòng ghi khách ---------- */
+  function themDong() {
+    const r = { khach: null, moi: false, daLuu: false, timer: null, seq: 0, el: null };
+    const el = document.createElement('div');
+    el.className = 'dong';
+    el.innerHTML =
+      '<div class="dong-dau"><span class="so"></span><span class="trang-thai"></span>' +
+        '<button type="button" class="xoa" aria-label="Xóa dòng này">✕</button></div>' +
+      '<div class="khach">' +
+        '<label>Khách hàng</label>' +
+        '<div class="tim">' +
+          '<input type="search" class="tim-in" placeholder="Gõ số điện thoại hoặc tên để tìm khách" autocomplete="off" enterkeyhint="search">' +
+          '<ul class="goi-y" hidden></ul>' +
+          '<button type="button" class="link them-moi">+ Chưa có khách? Thêm khách mới</button>' +
+        '</div>' +
+        '<div class="da-chon" hidden></div>' +
+        '<div class="khach-moi" hidden>' +
+          '<div><label>Họ và tên</label><input type="text" class="k-ten" maxlength="120" autocomplete="off"></div>' +
+          '<div><label>Số điện thoại</label><input type="tel" class="k-sdt" inputmode="tel" autocomplete="off"></div>' +
+          '<div><label>Chương trình quan tâm</label><select class="k-cp"></select></div>' +
+          '<div><label>Nguồn khách</label><select class="k-nguon"></select></div>' +
+          '<div class="rong canh-bao k-trung" hidden></div>' +
+          '<div class="rong"><button type="button" class="link k-huy">Hủy, quay lại tìm khách</button></div>' +
+        '</div>' +
+      '</div>' +
+      '<div><label>Hình thức tiếp xúc</label><select class="ht"></select></div>' +
+      '<div><label>Kết quả</label><select class="kq"></select></div>' +
+      '<div class="o-coc"><label>Tiền đặt cọc (triệu đồng)</label><input type="number" class="coc" min="0" step="0.1" inputmode="decimal" placeholder="Chỉ khi đặt cọc" disabled></div>' +
+      '<div class="o-hen" hidden><label>Ngày hẹn tư vấn (bắt buộc)</label><input type="date" class="hen"></div>' +
+      '<div class="ghichu"><label>Ghi chú</label><input type="text" class="gc" maxlength="500" autocomplete="off"></div>' +
+      '<div class="loi" role="alert" hidden></div>';
+    r.el = el;
+    napSelect($('.k-cp', el), dm.chuong_trinh, '— Chọn —');
+    napSelect($('.k-nguon', el), dm.nguon, '— Chọn —');
+    napSelect($('.ht', el), dm.hinh_thuc, '— Chọn —');
+    napSelect($('.kq', el), dm.ket_qua, '— Chọn —');
+
+    // tìm khách
+    const o = $('.tim-in', el), ds = $('.goi-y', el);
+    o.addEventListener('input', () => {
+      clearTimeout(r.timer);
+      const q = o.value.trim();
+      if (q.length < 3) { hien(ds, false); return; }
+      r.timer = setTimeout(() => timKhach(r, q), 300);
+    });
+    o.addEventListener('keydown', ev => { if (ev.key === 'Escape') hien(ds, false); });
+    $('.them-moi', el).addEventListener('click', () => batKhachMoi(r));
+    $('.k-huy', el).addEventListener('click', () => { r.moi = false; capNhatKhach(r); });
+    $('.k-sdt', el).addEventListener('blur', () => kiemTraTrungSdt(r));
+
+    // tiền cọc chỉ mở khi kết quả là Đặt cọc
+    $('.hen', el).min = homNay();
+    $('.kq', el).addEventListener('change', () => {
+      const coc = $('.coc', el), hen = $('.hen', el);
+      const kqv = $('.kq', el).value;
+      const batCoc = kqv === 'Đặt cọc';
+      const batHen = kqv === 'Hẹn tư vấn';
+      coc.disabled = !batCoc;
+      if (!batCoc) coc.value = '';
+      // Hẹn tư vấn: hiện ô ngày hẹn thay cho ô tiền cọc
+      hien($('.o-coc', el), !batHen);
+      hien($('.o-hen', el), batHen);
+      if (!batHen) hen.value = '';
+    });
+    $('.xoa', el).addEventListener('click', () => {
+      if (r.daLuu) return;
+      el.remove();
+      dongs = dongs.filter(x => x !== r);
+      danhSoDong();
+    });
+
+    $('#danh-sach').appendChild(el);
+    dongs.push(r);
+    danhSoDong();
+    return r;
+  }
+  function danhSoDong() {
+    dongs.forEach((r, i) => { $('.so', r.el).textContent = 'Khách ' + (i + 1); });
+  }
+
+  async function timKhach(r, q) {
+    const seq = ++r.seq;
+    const ds = $('.goi-y', r.el);
+    const { data, error } = await sb.rpc('tim_khach', { q });
+    if (seq !== r.seq) return;           // kết quả cũ, bỏ qua
+    ds.textContent = '';
+    if (error) {
+      const li = document.createElement('li'); li.textContent = 'Không tìm được: ' + error.message; ds.appendChild(li); hien(ds, true); return;
+    }
+    (data || []).forEach(k => {
+      const li = document.createElement('li');
+      const ten = document.createElement('div');
+      ten.textContent = k.ho_ten;
+      const nhan = document.createElement('span');
+      nhan.className = 'nhan ' + (k.la_khach_cua_toi ? 'cua-toi' : 'nguoi-khac');
+      nhan.textContent = k.la_khach_cua_toi ? 'Của bạn' : 'Người khác phụ trách';
+      ten.appendChild(nhan);
+      const nho = document.createElement('div');
+      nho.className = 'nho';
+      nho.textContent = k.so_dien_thoai + ' · Phụ trách: ' + k.ten_nguoi_phu_trach;
+      li.appendChild(ten); li.appendChild(nho);
+      li.addEventListener('click', () => { r.khach = k; r.moi = false; hien(ds, false); capNhatKhach(r); });
+      ds.appendChild(li);
+    });
+    if (!data || !data.length) {
+      const li = document.createElement('li');
+      li.className = 'nho'; li.textContent = 'Không thấy khách nào. Bạn có thể thêm khách mới.';
+      ds.appendChild(li);
+    }
+    hien(ds, true);
+  }
+
+  function batKhachMoi(r) {
+    const q = $('.tim-in', r.el).value.trim();
+    r.moi = true; r.khach = null;
+    capNhatKhach(r);
+    const dgt = chuanHoaSdt(q);
+    if (q && /^[\d\s.+\-()]+$/.test(q)) $('.k-sdt', r.el).value = dgt || q;
+    else if (q) $('.k-ten', r.el).value = q;
+    $('.k-ten', r.el).focus();
+  }
+
+  function capNhatKhach(r) {
+    const tim = $('.tim', r.el), dc = $('.da-chon', r.el), moi = $('.khach-moi', r.el);
+    hien($('.goi-y', r.el), false);
+    hien(tim, !r.khach && !r.moi);
+    hien(moi, r.moi && !r.khach);
+    hien(dc, !!r.khach);
+    dc.textContent = '';
+    dc.classList.toggle('khac', !!r.khach && !r.khach.la_khach_cua_toi);
+    if (r.khach) {
+      const t = document.createElement('div');
+      const k = r.khach;
+      t.textContent = k.la_khach_cua_toi
+        ? k.ho_ten + ' · ' + k.so_dien_thoai
+        : 'Khách do ' + k.ten_nguoi_phu_trach + ' phụ trách (' + k.ho_ten + ', SĐT ' + k.so_dien_thoai + '). Bạn không ghi tiếp xúc được cho khách này.';
+      dc.appendChild(t);
+      if (!r.daLuu && !r.dieuChinhId) {   // dòng điều chỉnh phải giữ nguyên khách của lần ghi gốc
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'link'; b.textContent = 'Đổi khách';
+        b.addEventListener('click', () => { r.khach = null; $('.tim-in', r.el).value = ''; capNhatKhach(r); $('.tim-in', r.el).focus(); });
+        dc.appendChild(b);
+      }
+    }
+  }
+
+  async function kiemTraTrungSdt(r) {
+    const c = $('.k-trung', r.el);
+    hien(c, false);
+    const d = chuanHoaSdt($('.k-sdt', r.el).value);
+    if (!sdtHopLe(d)) return;
+    const { data } = await sb.rpc('tim_khach', { q: d });
+    if (data && data.length) {
+      const k = data[0];
+      c.textContent = 'Số này đã có: ' + k.ho_ten + ' (phụ trách: ' + k.ten_nguoi_phu_trach + '). Hãy bấm "Hủy" và chọn khách đó thay vì thêm mới.';
+      hien(c, true);
+    }
+  }
+
+  /* ---------- kiểm tra & lưu ---------- */
+  function docDong(r) {
+    const el = r.el;
+    return {
+      ten: $('.k-ten', el).value.trim(),
+      sdt: $('.k-sdt', el).value.trim(),
+      cp: $('.k-cp', el).value,
+      nguon: $('.k-nguon', el).value,
+      ht: $('.ht', el).value,
+      kq: $('.kq', el).value,
+      coc: $('.coc', el).value.trim(),
+      hen: $('.hen', el).value,
+      gc: $('.gc', el).value.trim()
+    };
+  }
+  function dongTrong(r, v) {
+    return !r.khach && !v.ten && !v.sdt && !v.cp && !v.nguon && !v.ht && !v.kq && !v.coc && !v.hen && !v.gc && !$('.tim-in', r.el).value.trim();
+  }
+  function kiemTraDong(r, v) {
+    if (r.khach) {
+      if (!r.khach.la_khach_cua_toi) return 'Khách này do ' + r.khach.ten_nguoi_phu_trach + ' phụ trách, bạn không ghi tiếp xúc được. Hãy xóa dòng này hoặc đổi khách.';
+    } else if (r.moi) {
+      if (!v.ten) return 'Chưa nhập họ tên khách mới.';
+      if (!sdtHopLe(chuanHoaSdt(v.sdt))) return 'Số điện thoại khách mới không hợp lệ: cần 10 hoặc 11 chữ số, bắt đầu bằng số 0.';
+      if (!v.cp) return 'Chưa chọn chương trình quan tâm của khách mới.';
+      if (!v.nguon) return 'Chưa chọn nguồn khách.';
+    } else {
+      return 'Chưa chọn khách: hãy tìm khách đã có hoặc thêm khách mới.';
+    }
+    if (!v.ht) return 'Chưa chọn hình thức tiếp xúc.';
+    if (!v.kq) return 'Chưa chọn kết quả.';
+    if (v.kq === 'Đặt cọc') {
+      const n = Number(v.coc);
+      if (!v.coc || !(n > 0)) return 'Kết quả là Đặt cọc nên cần nhập số tiền đặt cọc (triệu đồng) lớn hơn 0.';
+      if (n > 1000) return 'Tiền đặt cọc đang lớn bất thường (' + v.coc + ' triệu). Nhớ nhập theo đơn vị triệu đồng.';
+    }
+    if (v.kq === 'Hẹn tư vấn') {
+      if (!v.hen) return 'Kết quả là Hẹn tư vấn nên phải nhập ngày hẹn (không ghi "hẹn tuần sau" vào ghi chú).';
+      if (v.hen < homNay()) return 'Ngày hẹn không được ở quá khứ. Hôm nay là ' + homNay().split('-').reverse().join('/') + '.';
+    }
+    return null;
+  }
+  function baoLoiDong(r, t) {
+    const l = $('.loi', r.el);
+    l.textContent = t || '';
+    hien(l, !!t);
+    r.el.classList.toggle('co-loi', !!t);
+  }
+
+  async function luuMotDong(r, v) {
+    // 1) nếu là khách mới thì tạo khách trước
+    if (!r.khach) {
+      const sdt = chuanHoaSdt(v.sdt);
+      const { data, error } = await sb.from('khach_hang').insert({
+        ho_ten: v.ten, so_dien_thoai: sdt,
+        chuong_trinh_quan_tam: v.cp, nguon_khach: v.nguon,
+        nguoi_phu_trach_id: me.id, nguoi_tao_id: me.id
+      }).select('id, ho_ten, so_dien_thoai').single();
+      if (error) throw error;
+      // nhớ khách vừa tạo để nếu bước 2 lỗi, bấm lưu lại không tạo trùng
+      r.khach = { id: data.id, ho_ten: data.ho_ten, so_dien_thoai: data.so_dien_thoai, ten_nguoi_phu_trach: me.ho_ten, la_khach_cua_toi: true };
+      r.moi = false;
+      capNhatKhach(r);
+    }
+    // 2) ghi lần tiếp xúc
+    const { data: tx, error: e2 } = await sb.from('lan_tiep_xuc').insert({
+      khach_hang_id: r.khach.id, nguoi_ghi_id: me.id,
+      hinh_thuc: v.ht, ket_qua: v.kq,
+      tien_dat_coc_trieu: v.kq === 'Đặt cọc' ? Number(v.coc) : null,
+      ngay_hen: v.kq === 'Hẹn tư vấn' ? v.hen : null,
+      ghi_chu: v.gc || null,
+      dieu_chinh_cho_id: r.dieuChinhId || null
+    }).select('id, thoi_diem_ghi').single();
+    if (e2) throw e2;
+    return tx;
+  }
+
+  function khoaDong(r, gio) {
+    r.daLuu = true;
+    r.el.classList.add('da-luu');
+    r.el.classList.remove('co-loi');
+    r.gio = gio;
+    const tt = $('.trang-thai', r.el);
+    tt.textContent = '✓ Đã lưu lúc ' + gio + (r.dieuChinhId ? ' · dòng điều chỉnh' : '');
+    tt.classList.remove('dc');
+    r.el.querySelectorAll('input, select').forEach(x => { x.disabled = true; });
+    hien($('.them-moi', r.el), false);
+    hien($('.xoa', r.el), false);
+    capNhatKhach(r);
+    baoLoiDong(r, '');
+    // Nút "Điều chỉnh": lần đã lưu không sửa, không xóa; nhập nhầm thì ghi thêm một dòng điều chỉnh
+    if (r.txId && !$('.dieu-chinh', r.el)) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'dieu-chinh'; b.textContent = 'Điều chỉnh';
+      b.title = 'Ghi thêm một lần tiếp xúc điều chỉnh cho lần ghi này';
+      b.addEventListener('click', () => moDieuChinh(r));
+      $('.dong-dau', r.el).insertBefore(b, $('.xoa', r.el));
+    }
+  }
+
+  // Tạo ngay dưới dòng đã lưu một dòng mới: cùng khách, nối với lần ghi cần điều chỉnh, ghi chú điền sẵn.
+  function moDieuChinh(r) {
+    const n = themDong();
+    // đưa dòng mới lên ngay sau dòng đã lưu
+    dongs = dongs.filter(x => x !== n);
+    dongs.splice(dongs.indexOf(r) + 1, 0, n);
+    r.el.after(n.el);
+    danhSoDong();
+    n.khach = Object.assign({}, r.khach);
+    n.moi = false;
+    n.dieuChinhId = r.txId;
+    capNhatKhach(n);
+    const tt = $('.trang-thai', n.el);
+    tt.textContent = 'Điều chỉnh cho lần ghi lúc ' + r.gio;
+    tt.classList.add('dc');
+    $('.gc', n.el).value = 'Điều chỉnh lần ghi lúc ' + r.gio + ': ';
+    n.el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    $('.ht', n.el).focus();
+  }
+
+  $('#nut-luu').addEventListener('click', async () => {
+    if (dangLuu) return;
+    dangLuu = true;
+    const nut = $('#nut-luu'); nut.disabled = true; nut.textContent = 'Đang lưu…';
+    const kq = $('#ket-qua-luu'); kq.className = ''; kq.textContent = '';
+    baoLoiChung('');
+    let ok = 0, loi = 0, trong = 0;
+    try {
+      for (const r of dongs) {
+        if (r.daLuu) continue;
+        const v = docDong(r);
+        if (dongTrong(r, v)) { trong++; baoLoiDong(r, ''); continue; }
+        const sai = kiemTraDong(r, v);
+        if (sai) { loi++; baoLoiDong(r, sai); continue; }
+        try {
+          const tx = await luuMotDong(r, v);
+          r.txId = tx.id;
+          khoaDong(r, gioPhut(tx.thoi_diem_ghi));
+          ok++;
+        } catch (err) {
+          loi++; baoLoiDong(r, dichLoi(err));
+        }
+      }
+    } finally {
+      dangLuu = false; nut.disabled = false; nut.textContent = 'Lưu tất cả';
+    }
+    if (!ok && !loi) { kq.className = 'phu'; kq.textContent = 'Chưa có dòng nào để lưu.'; }
+    else {
+      kq.className = loi ? 'xau' : 'ok';
+      kq.textContent = 'Đã lưu ' + ok + ' dòng' + (loi ? '; ' + loi + ' dòng cần sửa (xem lý do ngay tại dòng).' : '.');
+    }
+    capNhatDem();
+  });
+
+  $('#nut-them-dong').addEventListener('click', () => {
+    const r = themDong();
+    $('.tim-in', r.el).focus();
+  });
+
+  // bấm ra ngoài thì đóng danh sách gợi ý
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.goi-y').forEach(ul => { if (!ul.parentElement.contains(e.target)) ul.hidden = true; });
+  });
+
+  /* ---------- màn hình Chuyển khách (chỉ quản trị viên; máy chủ cũng chặn người khác) ---------- */
+  const NHAN_TT = { hoat_dong: '', da_khoa: ' – đã khóa', da_nghi: ' – đã nghỉ' };
+  let cNguoi = [];     // mọi tư vấn viên
+  let cSo = {};        // id -> số khách đang phụ trách
+  let dangChuyen = false;
+
+  function tenNguoi(id) { const n = cNguoi.find(x => x.id === id); return n ? n.ho_ten : '?'; }
+  function nhanNguoi(n) { return n.ho_ten + NHAN_TT[n.trang_thai] + ' (' + (cSo[n.id] || 0) + ' khách)'; }
+  function napOption(sel, ds, tieuDe, giu) {
+    sel.textContent = '';
+    sel.appendChild(taoOption('', tieuDe));
+    ds.forEach(n => sel.appendChild(taoOption(n.id, nhanNguoi(n))));
+    sel.value = ds.some(n => n.id === giu) ? giu : '';
+  }
+  function baoChuyen(loi, ok) {
+    const l = $('#c-loi'), o = $('#c-ok');
+    l.textContent = loi || ''; hien(l, !!loi);
+    o.textContent = ok || ''; hien(o, !!ok);
+  }
+  function dichLoiChuyen(err) {
+    const m = String((err && err.message) || err || '');
+    if (/Chi quan tri vien/i.test(m)) return 'Chỉ quản trị viên được chuyển khách.';
+    if (/Phai nhap ly do/i.test(m)) return 'Phải nhập lý do chuyển khách (ít nhất 3 ký tự).';
+    if (/khong con khach nao/i.test(m)) return 'Người này không còn khách nào để chuyển.';
+    if (/Nguoi nhan phai la tu van vien dang hoat dong/i.test(m)) return 'Người nhận phải là tư vấn viên còn làm việc.';
+    if (/Nguoi nhan khong duoc la nguoi chuyen di/i.test(m)) return 'Người nhận không được trùng người chuyển đi.';
+    if (/Chon mot hoac hai nguoi nhan/i.test(m)) return 'Chỉ chọn một hoặc hai người nhận.';
+    if (/JWT|expired|not authenticated/i.test(m)) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+    if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+    return 'Không chuyển được: ' + m;
+  }
+
+  async function khoiDongChuyen() {
+    baoLoiChung('');
+    await napNguoiChuyen();
+    await napLichSuChuyen();
+  }
+
+  async function napNguoiChuyen() {
+    const [u, s] = await Promise.all([
+      sb.from('nguoi_dung').select('id, ho_ten, trang_thai').eq('vai_tro', 'tu_van_vien').order('ho_ten'),
+      sb.rpc('so_khach_theo_nguoi')
+    ]);
+    const e = u.error || s.error;
+    if (e) { baoLoiChung('Không tải được danh sách tư vấn viên: ' + e.message); return; }
+    cNguoi = u.data || [];
+    cSo = {};
+    (s.data || []).forEach(r => { cSo[r.nguoi_id] = Number(r.so_khach); });
+    capNhatChuyen(true);
+  }
+
+  // Dựng lại các ô chọn (người nghỉ xếp trước), loại trùng giữa người đi và người nhận, rồi tính phần xem trước.
+  function capNhatChuyen(napLai) {
+    const tu = $('#c-tu').value, n1 = $('#c-nhan1').value, n2 = $('#c-nhan2').value;
+    const dsTu = cNguoi.slice().sort((a, b) =>
+      (a.trang_thai === 'hoat_dong') - (b.trang_thai === 'hoat_dong') || a.ho_ten.localeCompare(b.ho_ten, 'vi'));
+    if (napLai) napOption($('#c-tu'), dsTu, '— Chọn người chuyển đi —', tu);
+    const tuNay = $('#c-tu').value;
+    const conLam = cNguoi.filter(n => n.trang_thai === 'hoat_dong' && n.id !== tuNay);
+    napOption($('#c-nhan1'), conLam, '— Chọn người nhận —', n1);
+    const nhan1 = $('#c-nhan1').value;
+    napOption($('#c-nhan2'), conLam.filter(n => n.id !== nhan1), '— Không chọn —', n2);
+    const nhan2 = $('#c-nhan2').value;
+    xemTruocChuyen(tuNay, [nhan1, nhan2].filter(Boolean));
+  }
+
+  function xemTruocChuyen(tu, nhan) {
+    const box = $('#c-xem-truoc'), nut = $('#c-xacnhan');
+    box.textContent = '';
+    nut.disabled = true;
+    const lydo = $('#c-lydo').value.trim();
+    if (!tu) { box.textContent = 'Chọn người chuyển đi để xem số khách sẽ chuyển.'; return; }
+    const tong = cSo[tu] || 0;
+    if (!tong) { box.textContent = tenNguoi(tu) + ' không còn khách nào để chuyển.'; return; }
+    if (!nhan.length) { box.textContent = tenNguoi(tu) + ' đang phụ trách ' + tong + ' khách. Chọn người nhận.'; return; }
+    // Chia đều. Máy chủ xếp người nhận theo mã rồi chia lần lượt, người đứng trước nhận thêm khi số khách lẻ.
+    const xep = nhan.slice().sort();
+    const chia = xep.map((id, j) => Math.floor(tong / xep.length) + (j < tong % xep.length ? 1 : 0));
+    const p = document.createElement('div');
+    p.textContent = 'Sẽ chuyển ' + tong + ' khách của ' + tenNguoi(tu) + ':';
+    const ul = document.createElement('ul');
+    xep.forEach((id, j) => {
+      const li = document.createElement('li');
+      li.textContent = tenNguoi(id) + ' nhận ' + chia[j] + ' khách (từ ' + (cSo[id] || 0) + ' lên ' + ((cSo[id] || 0) + chia[j]) + ' khách)';
+      ul.appendChild(li);
+    });
+    box.appendChild(p); box.appendChild(ul);
+    if (lydo.length < 3) {
+      const q = document.createElement('div'); q.className = 'phu'; q.textContent = 'Nhập lý do (ít nhất 3 ký tự) để bật nút xác nhận.'; box.appendChild(q);
+      return;
+    }
+    nut.disabled = dangChuyen;
+  }
+
+  ['#c-tu', '#c-nhan1', '#c-nhan2'].forEach(s => $(s).addEventListener('change', () => { baoChuyen('', ''); capNhatChuyen(false); }));
+  $('#c-lydo').addEventListener('input', () => capNhatChuyen(false));
+
+  $('#c-xacnhan').addEventListener('click', async () => {
+    if (dangChuyen) return;
+    const tu = $('#c-tu').value;
+    const nhan = [$('#c-nhan1').value, $('#c-nhan2').value].filter(Boolean);
+    const lydo = $('#c-lydo').value.trim();
+    if (!tu || !nhan.length || lydo.length < 3) return;
+    dangChuyen = true;
+    const nut = $('#c-xacnhan'); nut.disabled = true; nut.textContent = 'Đang chuyển…';
+    baoChuyen('', '');
+    const tenTu = tenNguoi(tu);
+    const { data, error } = await sb.rpc('chuyen_khach', { p_tu: tu, p_nhan: nhan, p_ly_do: lydo });
+    dangChuyen = false; nut.textContent = 'Xác nhận chuyển khách';
+    if (error) { baoChuyen(dichLoiChuyen(error), ''); capNhatChuyen(false); return; }
+    baoChuyen('', 'Đã chuyển ' + data.so_khach + ' khách của ' + tenTu + '. Xem dòng đầu tiên trong lịch sử bên dưới.');
+    $('#c-lydo').value = '';
+    $('#c-nhan1').value = ''; $('#c-nhan2').value = '';
+    await napNguoiChuyen();
+    await napLichSuChuyen();
+  });
+
+  async function napLichSuChuyen() {
+    const kv = $('#c-lich-su');
+    const { data, error } = await sb.rpc('lich_su_chuyen_lo');
+    kv.textContent = '';
+    if (error) { baoLoiChung('Không tải được lịch sử chuyển khách: ' + error.message); return; }
+    if (!data || !data.length) {
+      const p = document.createElement('p'); p.className = 'phu'; p.textContent = 'Chưa có lần chuyển nào.'; kv.appendChild(p); return;
+    }
+    data.forEach(l => {
+      const the = document.createElement('div'); the.className = 'lich-su-the';
+      const d1 = document.createElement('div'); d1.className = 'dong-1';
+      const nhan = (l.nguoi_nhan || []).map(x => x.ten + ' (' + x.so + ')').join(', ');
+      d1.textContent = l.tu_ten + ' → ' + nhan + ' · ' + l.so_khach + ' khách';
+      const d2 = document.createElement('div'); d2.className = 'phu';
+      const gio = new Date(l.thoi_diem).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
+      d2.textContent = gio + ' · Thực hiện: ' + l.nguoi_thuc_hien_ten;
+      const d3 = document.createElement('div'); d3.className = 'phu'; d3.textContent = 'Lý do: ' + l.ly_do;
+      the.appendChild(d1); the.appendChild(d2); the.appendChild(d3);
+      kv.appendChild(the);
+    });
+  }
+
+  /* ---------- khởi động ---------- */
+  (async function khoiDong() {
+    try {
+      const { data } = await sb.auth.getSession();
+      if (data && data.session) await vaoTrangChinh(); else hienDangNhap();
+    } catch (e) {
+      hienDangNhap();
+      baoLoiChung('Không kết nối được máy chủ. Kiểm tra mạng rồi tải lại trang.');
+    }
+  })();
+})();
+</script>
+</body>
+</html>
